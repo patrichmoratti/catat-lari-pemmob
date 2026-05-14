@@ -1,46 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
-import '../providers/run_provider.dart';
-import '../theme/app_theme.dart';
-import '../widgets/custom_button.dart';
-import 'edit_profile_screen.dart';
-import 'login_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+import '../../services/auth_service.dart';
+import '../../services/run_service.dart';
+import '../../theme/app_theme.dart';
+import '../../viewmodels/profile/profile_viewmodel.dart';
+import '../../widgets/custom_button.dart';
+import '../auth/login_view.dart';
+import 'edit_profile_view.dart';
+
+class ProfileView extends StatelessWidget {
+  const ProfileView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
-    final runs = context.watch<RunProvider>();
-    final user = auth.currentUser!;
-    final uid = user.id;
+    return ChangeNotifierProvider(
+      create: (_) => ProfileViewModel(
+        AuthService(),
+        RunService(),
+      )..init(),
+      child: const _ProfileViewBody(),
+    );
+  }
+}
 
-    final totalDist = runs.totalDistanceForUser(uid);
-    final totalRuns = runs.runsForUser(uid).length;
-    final totalCal = runs.totalCaloriesForUser(uid);
+class _ProfileViewBody extends StatelessWidget {
+  const _ProfileViewBody();
+
+  @override
+  Widget build(BuildContext context) {
+    final vm = context.watch<ProfileViewModel>();
+
+    if (vm.isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    final user = vm.currentUser;
+
+    if (user == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('User tidak ditemukan'),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Profil Saya',
           style: TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.w700),
+            color: AppColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         leading: GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
+          onTap: () {
+            Navigator.pop(context);
+          },
           child: Container(
             margin: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.cardBorder),
+              border: Border.all(
+                color: AppColors.cardBorder,
+              ),
             ),
-            child: const Icon(Icons.arrow_back_ios_new_rounded,
-                size: 16, color: AppColors.textPrimary),
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 16,
+              color: AppColors.textPrimary,
+            ),
           ),
         ),
       ),
@@ -49,14 +85,15 @@ class ProfileScreen extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              // Avatar + name
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.cardBorder),
+                  border: Border.all(
+                    color: AppColors.cardBorder,
+                  ),
                 ),
                 child: Column(
                   children: [
@@ -65,18 +102,12 @@ class ProfileScreen extends StatelessWidget {
                       height: 84,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [AppColors.primary, AppColors.primaryLight],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.primary,
+                            AppColors.primaryLight,
+                          ],
                         ),
                         borderRadius: BorderRadius.circular(26),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.35),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
                       ),
                       child: Center(
                         child: Text(
@@ -91,7 +122,9 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 16),
+
                     Text(
                       user.name,
                       style: const TextStyle(
@@ -100,11 +133,15 @@ class ProfileScreen extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
+
                     const SizedBox(height: 4),
+
                     Text(
                       user.email,
                       style: const TextStyle(
-                          color: AppColors.textSecondary, fontSize: 14),
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                      ),
                     ),
                   ],
                 ),
@@ -112,25 +149,28 @@ class ProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // Stats
               Row(
                 children: [
                   _StatTile(
                     icon: Icons.directions_run_rounded,
-                    value: totalRuns.toString(),
+                    value: vm.totalRuns.toString(),
                     label: 'Total Lari',
                   ),
+
                   const SizedBox(width: 12),
+
                   _StatTile(
                     icon: Icons.route_rounded,
-                    value: totalDist.toStringAsFixed(1),
+                    value: vm.totalDistance.toStringAsFixed(1),
                     label: 'Total km',
                     highlight: true,
                   ),
+
                   const SizedBox(width: 12),
+
                   _StatTile(
                     icon: Icons.local_fire_department_rounded,
-                    value: '$totalCal',
+                    value: vm.totalCalories.toString(),
                     label: 'kkal',
                   ),
                 ],
@@ -138,12 +178,13 @@ class ProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // Info card
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: AppColors.cardBorder),
+                  border: Border.all(
+                    color: AppColors.cardBorder,
+                  ),
                 ),
                 child: Column(
                   children: [
@@ -152,13 +193,23 @@ class ProfileScreen extends StatelessWidget {
                       label: 'Nama',
                       value: user.name,
                     ),
-                    const Divider(height: 1, indent: 56),
+
+                    const Divider(
+                      height: 1,
+                      indent: 56,
+                    ),
+
                     _InfoRow(
                       icon: Icons.email_outlined,
                       label: 'Email',
                       value: user.email,
                     ),
-                    const Divider(height: 1, indent: 56),
+
+                    const Divider(
+                      height: 1,
+                      indent: 56,
+                    ),
+
                     _InfoRow(
                       icon: Icons.phone_outlined,
                       label: 'Telepon',
@@ -170,37 +221,46 @@ class ProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Edit profile
               CustomButton(
                 text: 'Edit Profil',
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (_) => const EditProfileScreen()),
-                ),
                 icon: Icons.edit_rounded,
                 backgroundColor: AppColors.surfaceVariant,
                 foregroundColor: AppColors.textPrimary,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const EditProfileView(),
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 12),
 
-              // Logout
               CustomButton(
                 text: 'Keluar dari Akun',
-                onPressed: () => _confirmLogout(context),
                 icon: Icons.logout_rounded,
-                backgroundColor: AppColors.error.withValues(alpha: 0.12),
+                backgroundColor:
+                    AppColors.error.withValues(alpha: 0.12),
                 foregroundColor: AppColors.error,
+                onPressed: () {
+                  _confirmLogout(
+                    context,
+                    vm,
+                  );
+                },
               ),
 
               const SizedBox(height: 24),
 
-              // App version
               const Text(
                 'Catat Lari v1.0.0',
-                style: TextStyle(color: AppColors.textHint, fontSize: 12),
+                style: TextStyle(
+                  color: AppColors.textHint,
+                  fontSize: 12,
+                ),
               ),
-              const SizedBox(height: 8),
             ],
           ),
         ),
@@ -208,34 +268,49 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _confirmLogout(BuildContext context) async {
+  Future<void> _confirmLogout(
+    BuildContext context,
+    ProfileViewModel vm,
+  ) async {
     final ok = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Keluar dari Akun'),
-        content:
-            const Text('Yakin ingin keluar? Kamu bisa masuk kembali kapan saja.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Batal'),
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Keluar dari Akun'),
+          content: const Text(
+            'Yakin ingin keluar? Kamu bisa masuk kembali kapan saja.',
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              minimumSize: const Size(80, 40),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx, false);
+              },
+              child: const Text('Batal'),
             ),
-            child: const Text('Keluar'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(ctx, true);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.error,
+              ),
+              child: const Text('Keluar'),
+            ),
+          ],
+        );
+      },
     );
+
     if (ok == true && context.mounted) {
-      await context.read<AuthProvider>().logout();
+      await vm.logout();
+
       if (!context.mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LoginView(),
+        ),
         (_) => false,
       );
     }
@@ -259,7 +334,10 @@ class _StatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        padding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal: 12,
+        ),
         decoration: BoxDecoration(
           color: highlight
               ? AppColors.primary.withValues(alpha: 0.1)
@@ -273,22 +351,35 @@ class _StatTile extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon,
-                color: highlight ? AppColors.primary : AppColors.textSecondary,
-                size: 22),
+            Icon(
+              icon,
+              color: highlight
+                  ? AppColors.primary
+                  : AppColors.textSecondary,
+            ),
+
             const SizedBox(height: 8),
+
             Text(
               value,
               style: TextStyle(
-                color: highlight ? AppColors.primary : AppColors.textPrimary,
+                color: highlight
+                    ? AppColors.primary
+                    : AppColors.textPrimary,
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
               ),
             ),
+
             const SizedBox(height: 2),
-            Text(label,
-                style: const TextStyle(
-                    color: AppColors.textSecondary, fontSize: 11)),
+
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 11,
+              ),
+            ),
           ],
         ),
       ),
@@ -301,21 +392,39 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _InfoRow(
-      {required this.icon, required this.label, required this.value});
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.textSecondary, size: 20),
+          Icon(
+            icon,
+            color: AppColors.textSecondary,
+            size: 20,
+          ),
+
           const SizedBox(width: 16),
-          Text(label,
-              style: const TextStyle(
-                  color: AppColors.textSecondary, fontSize: 14)),
+
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+            ),
+          ),
+
           const Spacer(),
+
           Flexible(
             child: Text(
               value,
