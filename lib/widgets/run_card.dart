@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/run_model.dart';
-import '../providers/run_provider.dart';
+import '../viewmodels/run_provider.dart';
 import '../theme/app_theme.dart';
 
 class RunCard extends StatelessWidget {
