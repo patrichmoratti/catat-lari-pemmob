@@ -46,7 +46,16 @@ class DashboardViewModel extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
   }
-  Future<void> refresh() async {
+ 
+Future<void> refresh() async {
   await init();
 }
+
+Future<void> deleteRun(String id) async {
+  await _runService.deleteRun(id);
+
+  await refresh();
+}
+
+
 }
