@@ -226,13 +226,18 @@ class _ProfileViewBody extends StatelessWidget {
                 icon: Icons.edit_rounded,
                 backgroundColor: AppColors.surfaceVariant,
                 foregroundColor: AppColors.textPrimary,
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => const EditProfileView(),
                     ),
                   );
+                  if (!context.mounted) return;
+
+                await context
+                    .read<ProfileViewModel>()
+                    .init();
                 },
               ),
 

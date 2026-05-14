@@ -47,7 +47,9 @@ class _DashboardViewBody extends StatelessWidget {
     if (user == null) {
       return const Scaffold(
         body: Center(
-          child: Text('User tidak ditemukan'),
+          child: Text(
+            'User tidak ditemukan',
+          ),
         ),
       );
     }
@@ -57,33 +59,61 @@ class _DashboardViewBody extends StatelessWidget {
         slivers: [
           SliverToBoxAdapter(
             child: _DashHeader(
-              userName: user.name.split(' ').first,
-              onProfileTap: () {
-                Navigator.push(
+              userName:
+                  user.name.split(' ').first,
+
+              onProfileTap: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ProfileView(),
+                    builder: (_) =>
+                        const ProfileView(),
                   ),
                 );
+
+                if (!context.mounted) {
+                  return;
+                }
+
+                await context
+                    .read<
+                        DashboardViewModel>()
+                    .refresh();
               },
             ),
           ),
 
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+              padding:
+                  const EdgeInsets.fromLTRB(
+                20,
+                4,
+                20,
+                0,
+              ),
               child: _StatsBanner(
-                totalDist: vm.totalDistance,
-                totalDurMin: vm.totalDuration,
-                totalCal: vm.totalCalories,
-                weekCount: vm.weekRuns.length,
+                totalDist:
+                    vm.totalDistance,
+                totalDurMin:
+                    vm.totalDuration,
+                totalCal:
+                    vm.totalCalories,
+                weekCount:
+                    vm.weekRuns.length,
               ),
             ),
           ),
 
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              padding:
+                  const EdgeInsets.fromLTRB(
+                20,
+                16,
+                20,
+                0,
+              ),
               child: _WeekStreak(
                 weekRuns: vm.weekRuns,
               ),
@@ -92,34 +122,65 @@ class _DashboardViewBody extends StatelessWidget {
 
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+              padding:
+                  const EdgeInsets.fromLTRB(
+                20,
+                24,
+                20,
+                12,
+              ),
               child: Row(
                 children: [
                   const Text(
                     'Riwayat Aktivitas',
                     style: TextStyle(
-                      color: AppColors.textPrimary,
+                      color: AppColors
+                          .textPrimary,
                       fontSize: 17,
-                      fontWeight: FontWeight.w700,
+                      fontWeight:
+                          FontWeight.w700,
                     ),
                   ),
+
                   const Spacer(),
+
                   if (vm.runs.isNotEmpty)
                     Container(
-                      padding: const EdgeInsets.symmetric(
+                      padding:
+                          const EdgeInsets
+                              .symmetric(
                         horizontal: 10,
                         vertical: 4,
                       ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(20),
+
+                      decoration:
+                          BoxDecoration(
+                        color: AppColors
+                            .primary
+                            .withValues(
+                          alpha: 0.12,
+                        ),
+
+                        borderRadius:
+                            BorderRadius
+                                .circular(
+                          20,
+                        ),
                       ),
+
                       child: Text(
                         '${vm.runs.length} sesi',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: AppColors.primary,
+
+                        style: GoogleFonts
+                            .plusJakartaSans(
+                          color: AppColors
+                              .primary,
+
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+
+                          fontWeight:
+                              FontWeight
+                                  .w600,
                         ),
                       ),
                     ),
@@ -132,61 +193,111 @@ class _DashboardViewBody extends StatelessWidget {
             SliverToBoxAdapter(
               child: _EmptyState(),
             )
+
           else
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(
+              padding:
+                  const EdgeInsets.fromLTRB(
                 20,
                 0,
                 20,
                 120,
               ),
+
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
+                delegate:
+                    SliverChildBuilderDelegate(
                   (ctx, i) {
-                    final run = vm.runs[i];
+                    final run =
+                        vm.runs[i];
 
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding:
+                          const EdgeInsets
+                              .only(
+                        bottom: 12,
+                      ),
+
                       child: RunCard(
                         run: run,
-                        onEdit: () {
-                          Navigator.push(
+
+                        onEdit:
+                            () async {
+                          await Navigator
+                              .push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => CreateRunView(
-                                existing: run,
+                              builder:
+                                  (_) =>
+                                      CreateRunView(
+                                existing:
+                                    run,
                               ),
                             ),
                           );
+
+                          if (!context
+                              .mounted) {
+                            return;
+                          }
+
+                          await context
+                              .read<
+                                  DashboardViewModel>()
+                              .refresh();
+                        },
+
+                        onDelete:
+                            () async {
+                          await context
+                              .read<
+                                  DashboardViewModel>()
+                              .deleteRun(
+                                run.id,
+                              );
                         },
                       ),
                     );
                   },
-                  childCount: vm.runs.length,
+
+                  childCount:
+                      vm.runs.length,
                 ),
               ),
             ),
         ],
       ),
 
-      floatingActionButton: FloatingActionButton.extended(
-                    onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const CreateRunView(),
-                ),
-              );
+      floatingActionButton:
+          FloatingActionButton.extended(
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) =>
+                  const CreateRunView(),
+            ),
+          );
 
-              if (!context.mounted) return;
+          if (!context.mounted) {
+            return;
+          }
 
-              await context
-                  .read<DashboardViewModel>()
-                  .init();
-            },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Catat Lari'),
-        backgroundColor: AppColors.primary,
+          await context
+              .read<DashboardViewModel>()
+              .refresh();
+        },
+
+        icon: const Icon(
+          Icons.add_rounded,
+        ),
+
+        label: const Text(
+          'Catat Lari',
+        ),
+
+        backgroundColor:
+            AppColors.primary,
       ),
     );
   }
@@ -194,6 +305,7 @@ class _DashboardViewBody extends StatelessWidget {
 
 class _DashHeader extends StatelessWidget {
   final String userName;
+
   final VoidCallback onProfileTap;
 
   const _DashHeader({
@@ -205,65 +317,114 @@ class _DashHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       bottom: false,
+
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+        padding:
+            const EdgeInsets.fromLTRB(
+          20,
+          20,
+          20,
+          16,
+        ),
+
         child: Row(
           children: [
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment
+                        .start,
+
                 children: [
                   Row(
                     children: [
                       Text(
                         'Halo, $userName ',
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
+
+                        style:
+                            const TextStyle(
+                          color: AppColors
+                              .textPrimary,
+
                           fontSize: 22,
-                          fontWeight: FontWeight.w800,
+
+                          fontWeight:
+                              FontWeight
+                                  .w800,
                         ),
                       ),
+
                       const Text(
                         '👋',
-                        style: TextStyle(fontSize: 20),
+
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 2),
+
+                  const SizedBox(
+                    height: 2,
+                  ),
+
                   Text(
                     DateFormat(
                       'EEEE, d MMMM yyyy',
                       'id_ID',
-                    ).format(DateTime.now()),
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    ).format(
+                      DateTime.now(),
+                    ),
+
+                    style:
+                        const TextStyle(
+                      color: AppColors
+                          .textSecondary,
+
                       fontSize: 13,
                     ),
                   ),
                 ],
               ),
             ),
+
             GestureDetector(
               onTap: onProfileTap,
+
               child: Container(
                 width: 44,
                 height: 44,
+
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient:
+                      const LinearGradient(
                     colors: [
                       AppColors.primary,
-                      AppColors.primaryLight,
+                      AppColors
+                          .primaryLight,
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(14),
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    14,
+                  ),
                 ),
+
                 child: Center(
                   child: Text(
-                    userName[0].toUpperCase(),
-                    style: const TextStyle(
+                    userName[0]
+                        .toUpperCase(),
+
+                    style:
+                        const TextStyle(
                       color: Colors.white,
+
                       fontSize: 18,
-                      fontWeight: FontWeight.w800,
+
+                      fontWeight:
+                          FontWeight
+                              .w800,
                     ),
                   ),
                 ),
@@ -278,8 +439,11 @@ class _DashHeader extends StatelessWidget {
 
 class _StatsBanner extends StatelessWidget {
   final double totalDist;
+
   final int totalDurMin;
+
   final int totalCal;
+
   final int weekCount;
 
   const _StatsBanner({
@@ -291,39 +455,56 @@ class _StatsBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalH = totalDurMin ~/ 60;
-    final totalM = totalDurMin % 60;
+    final totalH =
+        totalDurMin ~/ 60;
+
+    final totalM =
+        totalDurMin % 60;
 
     final durStr = totalH > 0
         ? '${totalH}j ${totalM}m'
         : '${totalM}m';
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding:
+          const EdgeInsets.all(18),
+
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
+
+        borderRadius:
+            BorderRadius.circular(20),
       ),
+
       child: Row(
         children: [
           Expanded(
             child: _BannerStat(
-              value: totalDist.toStringAsFixed(1),
+              value: totalDist
+                  .toStringAsFixed(1),
+
               unit: 'km',
+
               label: 'Jarak',
             ),
           ),
+
           Expanded(
             child: _BannerStat(
               value: durStr,
+
               unit: '',
+
               label: 'Durasi',
             ),
           ),
+
           Expanded(
             child: _BannerStat(
               value: totalCal.toString(),
+
               unit: 'kkal',
+
               label: 'Kalori',
             ),
           ),
@@ -335,7 +516,9 @@ class _StatsBanner extends StatelessWidget {
 
 class _BannerStat extends StatelessWidget {
   final String value;
+
   final String unit;
+
   final String label;
 
   const _BannerStat({
@@ -350,17 +533,27 @@ class _BannerStat extends StatelessWidget {
       children: [
         Text(
           '$value $unit',
+
           style: const TextStyle(
-            color: AppColors.textPrimary,
+            color:
+                AppColors.textPrimary,
+
             fontSize: 18,
-            fontWeight: FontWeight.bold,
+
+            fontWeight:
+                FontWeight.bold,
           ),
         ),
+
         const SizedBox(height: 4),
+
         Text(
           label,
+
           style: const TextStyle(
-            color: AppColors.textSecondary,
+            color: AppColors
+                .textSecondary,
+
             fontSize: 12,
           ),
         ),
@@ -386,7 +579,9 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text('Belum ada aktivitas'),
+      child: Text(
+        'Belum ada aktivitas',
+      ),
     );
   }
 }
