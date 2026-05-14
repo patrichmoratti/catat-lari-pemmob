@@ -46,4 +46,7 @@ class DashboardViewModel extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
   }
+  Future<void> refresh() async {
+  await init();
+}
 }

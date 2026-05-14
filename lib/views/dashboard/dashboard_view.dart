@@ -149,8 +149,8 @@ class _DashboardViewBody extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 12),
                       child: RunCard(
                         run: run,
-                        onEdit: () {
-                          Navigator.push(
+                        onEdit: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => CreateRunView(
@@ -158,6 +158,11 @@ class _DashboardViewBody extends StatelessWidget {
                               ),
                             ),
                           );
+                          if (!context.mounted) return;
+
+                          await context
+                              .read<DashboardViewModel>()
+                              .refresh();
                         },
                       ),
                     );

@@ -50,4 +50,8 @@ class ProfileViewModel extends ChangeNotifier {
   Future<void> logout() async {
     await _authService.logout();
   }
+
+  Future<void> refresh() async {
+  await init();
+}
 }
