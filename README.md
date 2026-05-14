@@ -1,10 +1,10 @@
 # 🏃 CATAT LARI 
 
 ## Nama Anggota Kelompok 2 Kelas IV-B :
-Safira Choirun Nisa’ (24082010046)
-Patrich Moratti (24082010080)
-Achmad Atfal Jaya R. (24082010085)
-Muhammad Yahya Zahid (24082010086)
+1. Safira Choirun Nisa’ (24082010046)
+2. Patrich Moratti (24082010080)
+3. Achmad Atfal Jaya R. (24082010085)
+4. Muhammad Yahya Zahid (24082010086)
 
 ## Deskripsi Aplikasi
 CatatLari adalah aplikasi mobile yang dirancang untuk membantu para pelari dari pemula hingga yang berpengalaman dalam mencatat, memantau, dan menganalisis setiap sesi lari mereka secara terstruktur dan menarik. Pengguna dapat mencatat setiap aktivitas lari dengan detail seperti tanggal, jarak tempuh, dan durasi. Aplikasi secara otomatis menghitung pace, kalori yang terbakar, serta kategori intensitas lari yang ditentukan otomatis berdasarkan jarak tempuh, Easy (< 3 km), Moderate (3–7 km), Long (7–12 km), dan Ultra (≥ 12 km), sehingga pengguna mendapatkan gambaran menyeluruh tentang performa dan progres latihan mereka dari waktu ke waktu. Aplikasi ini dibangun menggunakan Flutter dengan penerapan pola arsitektur MVVM (Model-View-ViewModel), Catat Lari memiliki tampilan yang intuitif dengan tema warna hitam dan oranye yang energik, mencerminkan semangat dan dinamika aktivitas lari.
@@ -59,6 +59,6 @@ Halaman untuk memperbarui informasi akun pengguna.
   - Jika tidak diaktifkan, bagian ubah password tersembunyi dan password lama tetap berlaku
 
 ## Arsitektur & Tech Stack
-Flutter : Framework utama untuk pengembangan aplikasi mobile lintas platform
-Dart : Bahasa pemrograman yang digunakan bersama Flutter
-MVVM Pattern : Pola arsitektur untuk pemisahkan logika bisnis dan antarmuka pengguna
+1. Flutter : Framework utama untuk pengembangan aplikasi mobile lintas platform
+2. Dart : Bahasa pemrograman yang digunakan bersama Flutter
+3. MVVM Pattern : Pola arsitektur untuk pemisahkan logika bisnis dan antarmuka pengguna
